@@ -1,0 +1,17 @@
+generic_id,interval_position,hourly_position,location_type,expected_interval_header,expected_hourly_header,is_active,notes
+Sub A,1,9,Standard,Sub A,Meter 4001,TRUE,Verified by original reconciliation mapping
+Sub B,2,14,Standard,Sub B,Meter 4002,TRUE,Verified by original reconciliation mapping
+Sub C,3,6,Standard,Sub C,Meter 4003,TRUE,Verified by original reconciliation mapping
+Sub D,4,3,Standard,Sub D,Meter 4004,TRUE,Verified by original reconciliation mapping
+Sub E,5,16,Standard,Sub E,Meter 4005,TRUE,Verified by original reconciliation mapping
+Sub F,6,13,Standard,Sub F,Meter 4006,TRUE,Verified by original reconciliation mapping
+Sub G,7,11,Standard,Sub G,Meter 4007,TRUE,Verified by original reconciliation mapping
+Sub H,8,5,Solar,Sub H,Meter 4008,TRUE,Solar flag from original reconciliation mapping
+Sub I,9,7,Standard,Sub I,Meter 4009,TRUE,Verified by original reconciliation mapping
+Sub J,10,10,Standard,Sub J,Meter 4010,TRUE,Verified by original reconciliation mapping
+Sub K,11,12,Shared,Sub K,Meter 4011,TRUE,Shared flag from original reconciliation mapping
+Sub L,12,8,Standard,Sub L,Meter 4012,TRUE,Verified by original reconciliation mapping
+Sub M,13,15,Standard,Sub M,Meter 4013,TRUE,Verified by original reconciliation mapping
+Sub N,14,2,Standard,Sub N,Meter 4014,TRUE,Verified by original reconciliation mapping
+Sub O,15,4,Solar,Sub O,Meter 4015,TRUE,Solar flag from original reconciliation mapping
+Sub P,16,1,Solar,Sub P,Meter 4016,TRUE,Verified by original reconciliation mapping
