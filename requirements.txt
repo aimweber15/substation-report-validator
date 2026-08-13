@@ -1,0 +1,10 @@
+# Excel read/write for the source workbooks and (Step 4) the output workbook.
+openpyxl==3.1.5
+
+# validator/stamps.py resolves ZoneInfo("America/Chicago") for the R11/R14
+# DST-aware calendar walk. Nothing in this codebase imports tzdata by name --
+# Python's zoneinfo uses it silently as its IANA database on platforms with
+# no system tz database (Windows, and some minimal Linux containers). Without
+# it, zoneinfo raises ZoneInfoNotFoundError at the exact point this app's
+# DST correctness depends on. Do not remove as "unused".
+tzdata==2026.3
