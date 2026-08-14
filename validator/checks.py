@@ -24,12 +24,18 @@ VALID_RESULTS = {"PASS", "CHECK", "NOT RUN"}
 
 
 def overall_status(check_rows):
-    """R0 -- the governing rule. CHECK if any row is CHECK, else PASS."""
+    """R0 -- the governing rule. CHECK if any row is CHECK; otherwise NOT RUN
+    if any row is NOT RUN; otherwise PASS. NOT RUN must never collapse into
+    PASS at the roll-up any more than at the row level -- R20 exists because
+    V4 is the only check a human can let lapse, and a roll-up that reads
+    PASS while R19 sat out would hide exactly that."""
     for row in check_rows:
         if row.result not in VALID_RESULTS:
             raise ValueError(f"{row.rule}: invalid result {row.result!r}")
     if any(row.result == "CHECK" for row in check_rows):
         return "CHECK"
+    if any(row.result == "NOT RUN" for row in check_rows):
+        return "NOT RUN"
     return "PASS"
 
 

@@ -1,10 +1,8 @@
 # Real vendor exports and the filled-in crosswalk never enter this repo.
 crosswalk.local.csv
 
-# Internal planning docs: the repo holds no real data, but these hold the
-# incident narrative for a named cooperative under a real byline -- a
-# different exposure test than the sample/fixture data passes. Stay on
-# disk for reference while building; submitted separately, not via git.
+# Internal planning docs. Stay on disk for reference while building;
+# submitted separately, not via git.
 docs/
 
 # Excel files are ignored by default; only fabricated sample and fixture
@@ -18,12 +16,12 @@ docs/
 !*_SAMPLE.xlsx
 !*_FIXTURE.xlsx
 
-# The validator's own output workbook (Step 4 -- naming not finalized
-# yet; already caught by the blanket *.xlsx rule above, listed explicitly
-# so the intent survives even if that naming changes).
-*_output.xlsx
-*_reconciliation.xlsx
-output/
+# The validator's own output workbook (Step 4: validator/workbook.py,
+# written to outputs/substation_report_<month>.xlsx). Already caught by
+# the blanket *.xlsx rule above -- it doesn't end _SAMPLE.xlsx or
+# _FIXTURE.xlsx -- but the whole directory is listed explicitly too, in
+# case a future run ever writes something there that isn't .xlsx.
+outputs/
 
 # Python / environment
 venv/

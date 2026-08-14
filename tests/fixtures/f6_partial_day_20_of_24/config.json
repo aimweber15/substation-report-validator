@@ -1,0 +1,49 @@
+{
+  "report_month": "2026-07",
+  "source_folder": "./tests/fixtures/f6_partial_day_20_of_24",
+  "interval_file_pattern": "*15*_FIXTURE.xlsx",
+  "hourly_file_pattern": "*hourly*_FIXTURE.xlsx",
+  "layout": {
+    "structure": "wide",
+    "header_row": 1,
+    "unit_description_row": 2,
+    "first_data_row": 3,
+    "last_row_is_total": true,
+    "leading_timestamp_columns": 2,
+    "timestamp_column_index": 1,
+    "timestamp_column_meaning": "interval_start",
+    "interval_timestamps_are_text": true,
+    "interval_timestamp_format": "%m/%d/%Y %H:%M",
+    "hourly_timestamps_are_datetime": true
+  },
+  "columns": {
+    "individual_count": 16,
+    "total_system_column": "last",
+    "total_system_is_control_only": true
+  },
+  "crosswalk_file": "./crosswalk.csv",
+  "match_by": "position_with_header_verification",
+  "units": {
+    "interval_value_unit": "kWh",
+    "hourly_value_unit": "kWh",
+    "aggregation_method": "sum"
+  },
+  "expected_interval_minutes": 15,
+  "hourly_interval_minutes": 60,
+  "timezone": {
+    "mode": "local",
+    "zone": "America/Chicago",
+    "expected_rows_per_day": "computed"
+  },
+  "reconciliation": {
+    "gt_figure": null,
+    "tolerance_pct": 2.0,
+    "tolerance_basis": "energy_only",
+    "tie_out_is_external": true,
+    "difference_formula": "meter_kwh - substation_kwh",
+    "loss_percent_denominator": "meter_kwh",
+    "meter_kwh_source": "hourly_file",
+    "substation_kwh_source": "interval_file",
+    "emit_status_column": false
+  }
+}

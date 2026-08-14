@@ -157,6 +157,12 @@ def discover_workbook(path, role, config, crosswalk_rows, position_field):
     parsed_by_col = {c: [] for c in ts_columns}
     matched_location_columns = [m for m in column_matches if "generic_id" in m]
     readings_by_generic_id = {m["generic_id"]: [] for m in matched_location_columns}
+    # Total/System control column, same index alignment as everything else
+    # in this pass -- total_column_values[i] is the same row as
+    # readings_by_generic_id[any generic_id][i]. Used for R... the
+    # total_control_mismatch data-quality flag (Final Report's control
+    # rows compare against this too).
+    total_column_values = []
 
     for row_idx in range(first_data_row_idx, last_data_row_idx + 1):
         for c in ts_columns:
@@ -187,6 +193,7 @@ def discover_workbook(path, role, config, crosswalk_rows, position_field):
         for m in matched_location_columns:
             value = ws.cell(row=row_idx, column=m["column"]).value
             readings_by_generic_id[m["generic_id"]].append((row_ts, value))
+        total_column_values.append((row_ts, ws.cell(row=row_idx, column=total_col_idx).value))
 
     primary_first = parsed_by_col[primary_ts_col][0]
     primary_last = parsed_by_col[primary_ts_col][-1]
@@ -223,6 +230,7 @@ def discover_workbook(path, role, config, crosswalk_rows, position_field):
         "column_matches": column_matches,
         "missing_crosswalk_positions": missing_positions,
         "readings_by_generic_id": readings_by_generic_id,
+        "total_column_values": total_column_values,
     }
 
 
