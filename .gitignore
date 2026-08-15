@@ -16,6 +16,9 @@ docs/
 !*_SAMPLE.xlsx
 !*_FIXTURE.xlsx
 
+# Committed sample outputs so the repository can be read without running it.
+!examples/*.xlsx
+
 # The validator's own output workbook (Step 4: validator/workbook.py,
 # written to outputs/substation_report_<month>.xlsx). Already caught by
 # the blanket *.xlsx rule above -- it doesn't end _SAMPLE.xlsx or

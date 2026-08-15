@@ -1,0 +1,100 @@
+{
+  "_comment": "Substation Report Validator. DEMO config -- identical to config.example.json except reconciliation.gt_figure, which is a fabricated number, not a real G&T cooperative's figure. Exists so R18-R20 can be demonstrated as PASS/populated instead of NOT VERIFIED. The real header text goes in crosswalk.csv on the work machine only, never in this repo.",
+
+  "report_month": "2026-07",
+  "source_folder": "./data",
+  "interval_file_pattern": "*15*_SAMPLE.xlsx",
+  "hourly_file_pattern": "*hourly*_SAMPLE.xlsx",
+
+  "layout": {
+    "structure": "wide",
+    "header_row": 1,
+    "unit_description_row": 2,
+    "first_data_row": 3,
+    "last_row_is_total": true,
+    "leading_timestamp_columns": 2,
+    "timestamp_column_index": 1,
+    "timestamp_column_meaning": "interval_start",
+    "interval_timestamps_are_text": true,
+    "interval_timestamp_format": "%m/%d/%Y %H:%M",
+    "hourly_timestamps_are_datetime": true,
+    "_confirmed_note": "Confirmed Aug 12 by the Meter Tech. Timestamps are interval START. The month window runs from the 1st at 00:00 up to but NOT including the 1st of the next month at 00:00 - the last interval STARTS at 23:45 (15-min) or 23:00 (hourly) on the last day and ENDS at 00:00 on the 1st. This is Defect 2 resolved: a 1st-to-1st inclusive pull grabs one extra interval that belongs to the next month."
+  },
+
+  "columns": {
+    "individual_count": 16,
+    "total_system_column": "last",
+    "total_system_is_control_only": true
+  },
+
+  "crosswalk_file": "./crosswalk.csv",
+  "match_by": "position_with_header_verification",
+
+  "units": {
+    "interval_value_unit": "kWh",
+    "hourly_value_unit": "kWh",
+    "aggregation_method": "sum",
+    "_note": "Confirmed Aug 11 — values are kWh totals per interval, so the hourly comparable is the sum of the four 15-minute readings. Energy is additive; do not average. If a future export ever switches to kW, this becomes mean and every historical number changes."
+  },
+
+  "expected_interval_minutes": 15,
+  "hourly_interval_minutes": 60,
+
+  "timezone": {
+    "mode": "local",
+    "zone": "America/Chicago",
+    "expected_rows_per_day": "computed",
+    "_confirmed_note": "Confirmed Aug 12: the metering software stores LOCAL time, not standard time year-round. So R14 is live, not hypothetical. Build the expected stamp set by walking a timezone-aware calendar from month start to next month start - never by multiplying days by 24 or 96.",
+    "_dst_2026": "Mar 8 2026 has 23 hours (743 hourly / 2972 interval rows in March). Nov 1 2026 has 25 hours (721 hourly / 2884 interval rows in November). July 2026 has no transition, so the July sample data cannot test any of this.",
+    "_ambiguous_hour": "On the fall-back day the wall-clock label 01:00 appears TWICE and the export almost certainly cannot tell the two apart. The duplicate check must expect exactly two occurrences of each stamp in the repeated hour on that date, or it raises a false CHECK every November. The app cannot resolve the ambiguity - it can only tolerate it and say so."
+  },
+
+  "reconciliation": {
+    "gt_figure": 3719842.5,
+    "tolerance_pct": 2.0,
+    "tolerance_basis": "energy_only",
+    "tie_out_is_external": true,
+    "difference_formula": "meter_kwh - substation_kwh",
+    "loss_percent_denominator": "meter_kwh",
+    "meter_kwh_source": "hourly_file",
+    "substation_kwh_source": "interval_file",
+    "emit_status_column": false,
+    "_note": "Confirmed Aug 11 from the existing workbook: column E = C - D, column F = E / C with zero handling. The live report has no status column - do not add one. R20: the app reports variance, it never decides whether variance is acceptable.",
+    "_confirmed_aug12": "The G&T cooperative does NOT bill on demand - energy only. So the peak-error concern is retired: absent rows understate the SUM, which is exactly what disagreed in the Aug 11 incident, and there is no demand charge behind it. The +/- 2% tolerance belongs to the G&T cooperative's report, which is a SEPARATE step downstream of this app. This app reports the variance; it does not perform the tie-out and does not pass or fail on 2%.",
+    "_demo_note": "gt_figure = 3,719,842.5 is fabricated, chosen to sit about 0.38% from the clean July sample's actual hourly-file grand total (3,733,936.8 kWh as of Aug 15 2026) -- close enough to demonstrate R18-R20 running for real, not a claim about any real month's numbers."
+  },
+
+  "scope": {
+    "all_substations_required": true,
+    "_confirmed_aug12": "Confirmed Aug 12: every substation should appear in every export. R16 is therefore a hard check - a substation present in the crosswalk but absent from a file is a CHECK, not a configurable expectation."
+  },
+
+  "final_report_tab": {
+    "headers": [
+      "Substation Name",
+      "Substation Meter",
+      "Substation Meter KWH",
+      "MDM Revenue Sub KWH",
+      "Meter KWH Differance",
+      "Meter KWH Loss"
+    ],
+    "_headers_note": "Reproduce exactly, including the spelling of 'Differance'. Changing it is a deliberate decision made with the readers, not a silent correction.",
+    "write_e_and_f_as_formulas": true,
+    "include_total_row": true,
+    "include_control_rows": true
+  },
+
+  "exception_flags": {
+    "missing_timestamp": true,
+    "duplicate_timestamp": true,
+    "zero_interval": true,
+    "negative_interval": true,
+    "blank_numeric": true,
+    "text_in_numeric": true,
+    "date_range_mismatch": true,
+    "unmapped_source_column": true,
+    "missing_mapped_column": true,
+    "total_control_mismatch": true,
+    "solar_shared_review": true
+  }
+}

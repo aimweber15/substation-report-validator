@@ -15,12 +15,19 @@ the provenance cell each take an independent, slightly-different
 
 import re
 from datetime import datetime
+from pathlib import Path
 
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
-from validator.checks import overall_status
+from validator.checks import OVERALL_STATUS_DISPLAY, overall_status
+
+
+class WorkbookWriteError(Exception):
+    """Fail-loud, clean message when the output file can't be written --
+    e.g. it's open in Excel. Not a check-logic failure, so it's kept
+    separate from ConfigError/LoadError's territory."""
 
 DOC_CREATOR = "Substation Report Validator"
 DOC_COMPANY = ""
@@ -71,12 +78,11 @@ def _write_reconciliation_tab(ws, check_rows, config, interval_report, hourly_re
     status, all_rows = build_reconciliation_rows(check_rows)
 
     ws.cell(row=1, column=1, value="STATUS:").font = Font(bold=True, size=14)
-    status_cell = ws.cell(row=1, column=2, value=status)
+    status_cell = ws.cell(row=1, column=2, value=OVERALL_STATUS_DISPLAY[status])
     status_cell.font = Font(bold=True, size=14)
     status_cell.fill = STATUS_FILL[status]
     ws.cell(row=2, column=1, value=(
-        "PASS / CHECK / NOT RUN, in words, never a code or a colour alone. "
-        "One status, one place, one word (R0)."
+        "In words, never a code or a colour alone. One status, one place (R0)."
     )).font = Font(italic=True, size=9)
 
     table_start = 4
@@ -90,7 +96,8 @@ def _write_reconciliation_tab(ws, check_rows, config, interval_report, hourly_re
     for rule, result, message in all_rows:
         row_idx += 1
         ws.cell(row=row_idx, column=1, value=rule)
-        result_cell = ws.cell(row=row_idx, column=2, value=result)
+        display_result = OVERALL_STATUS_DISPLAY[result] if rule == "R0" else result
+        result_cell = ws.cell(row=row_idx, column=2, value=display_result)
         result_cell.fill = STATUS_FILL[result]
         ws.cell(row=row_idx, column=3, value=message).alignment = Alignment(wrap_text=True, vertical="top")
 
@@ -257,5 +264,15 @@ def build_workbook(
     )
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    wb.save(out_path)
+    try:
+        wb.save(out_path)
+    except PermissionError:
+        try:
+            display_path = out_path.relative_to(Path.cwd())
+        except ValueError:
+            display_path = out_path
+        raise WorkbookWriteError(
+            f"The output file is open in another program.\n"
+            f"Close {display_path} and run again."
+        ) from None
     return out_path

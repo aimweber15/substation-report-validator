@@ -22,6 +22,19 @@ CheckResult = namedtuple("CheckResult", ["rule", "result", "message"])
 
 VALID_RESULTS = {"PASS", "CHECK", "NOT RUN"}
 
+# The raw result value stays "NOT RUN" everywhere -- R20's logic, fill-color
+# lookups, and every row-level comparison key off it unchanged. This maps
+# that value to the words shown for the OVERALL status only (the banner and
+# R0's own row, never R18/R19's individual rows, which already carry their
+# own explanatory message). "NOT RUN" read there as "the report has not
+# been produced" -- the opposite of what it means, which is that everything
+# else passed and the outside tie-out is the one thing waiting on a person.
+OVERALL_STATUS_DISPLAY = {
+    "PASS": "PASS",
+    "CHECK": "CHECK",
+    "NOT RUN": "NOT VERIFIED - the outside tie-out has not been run",
+}
+
 
 def overall_status(check_rows):
     """R0 -- the governing rule. CHECK if any row is CHECK; otherwise NOT RUN
@@ -46,4 +59,5 @@ def print_check_rows(check_rows):
     for row in check_rows:
         print(f"{row.rule:<{rule_width}}  {row.result:<7}  {row.message}")
     print("-" * 70)
-    print(f"Overall status (R0): {overall_status(check_rows)}")
+    status = overall_status(check_rows)
+    print(f"Overall status (R0): {OVERALL_STATUS_DISPLAY[status]}")

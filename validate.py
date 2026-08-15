@@ -10,7 +10,7 @@ and no PASS/CHECK judgement is made -- that starts in Step 2.
 import sys
 
 from validator import __version__
-from validator.checks import print_check_rows
+from validator.checks import OVERALL_STATUS_DISPLAY, print_check_rows
 from validator.checks_v1 import check_r2, check_v1_for_file
 from validator.checks_v2 import check_r6_r8, check_v2_for_file
 from validator.checks_v3 import run_v3_for_file
@@ -19,7 +19,7 @@ from validator.config import ConfigError, load_config, load_crosswalk, unconfirm
 from validator.exceptions import EXCEPTION_FLAG_NOTES, compute_exception_counts, solar_shared_review_note
 from validator.final_report import build_final_report_data
 from validator.load import LoadError, find_source_file, discover_workbook, print_report
-from validator.workbook import build_reconciliation_rows, build_workbook
+from validator.workbook import WorkbookWriteError, build_reconciliation_rows, build_workbook
 
 
 def main():
@@ -114,12 +114,16 @@ def main():
     exception_notes["solar_shared_review"] = solar_shared_review_note(crosswalk_rows)
 
     out_path = REPO_ROOT / "outputs" / f"substation_report_{config['report_month']}.xlsx"
-    build_workbook(
-        interval_report, hourly_report, config, crosswalk_rows,
-        check_rows, final_report_data, hourly_grid, interval_grid,
-        interval_exception_counts, hourly_exception_counts, exception_notes,
-        __version__, out_path,
-    )
+    try:
+        build_workbook(
+            interval_report, hourly_report, config, crosswalk_rows,
+            check_rows, final_report_data, hourly_grid, interval_grid,
+            interval_exception_counts, hourly_exception_counts, exception_notes,
+            __version__, out_path,
+        )
+    except WorkbookWriteError as e:
+        print(f"{e}", file=sys.stderr)
+        return 1
     print(f"Wrote output workbook: {out_path}")
     print()
 
@@ -127,13 +131,14 @@ def main():
     print("=" * 70)
     print("RECONCILIATION TAB -- status row and rule table")
     print("=" * 70)
-    print(f"STATUS: {status}")
+    print(f"STATUS: {OVERALL_STATUS_DISPLAY[status]}")
     print()
     rule_width = max(len(r) for r, _, _ in reconciliation_rows)
     print(f"{'Rule':<{rule_width}}  {'Result':<7}  Message")
     print("-" * 70)
     for rule, result, message in reconciliation_rows:
-        print(f"{rule:<{rule_width}}  {result:<7}  {message}")
+        display_result = OVERALL_STATUS_DISPLAY[result] if rule == "R0" else result
+        print(f"{rule:<{rule_width}}  {display_result:<7}  {message}")
 
     return 0
 
